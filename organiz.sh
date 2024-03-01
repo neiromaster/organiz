@@ -3,12 +3,13 @@
 source functions.sh
 
 # If the file config.sh if it does not exist, then copy it from config.example.sh
-if [ ! -f config.sh ]; then
-    cp config.example.sh config.sh
-    echo "config.sh created. Please edit it and restart the script"
+if [ ! -f config ]; then
+    cp config.example config
+    echo "config created. Please edit it and restart the script"
+    exit 0
 fi
 
-source config.sh
+source config
 
 echo -e "Start: source $sourcePath\ndestination $storePath"
 
