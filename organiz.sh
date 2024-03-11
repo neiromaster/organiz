@@ -22,12 +22,12 @@ if [ -z "$section" ]; then
 fi
 
 for section in $section; do
-    source_path=$(parse_ini "$config_file" "$section" sourcePath)
-    store_path=$(parse_ini "$config_file" "$section" storePath)
-    destination_path=$(parse_ini "$config_file" "$section" destinationPath)
-    file_filter=$(parse_ini "$config_file" "$section" fileFilter)
-    target_size=$(parse_ini "$config_file" "$section" targetSize)
-    max_files=$(parse_ini "$config_file" "$section" maxFiles)
+    source_path=$(parse_ini "$config_file" "$section" source_path)
+    store_path=$(parse_ini "$config_file" "$section" store_path)
+    destination_path=$(parse_ini "$config_file" "$section" destination_path)
+    file_filter=$(parse_ini "$config_file" "$section" file_filter)
+    target_size=$(parse_ini "$config_file" "$section" target_size)
+    max_files=$(parse_ini "$config_file" "$section" max_files)
 
     echo "Section: $section"
     echo "Source: $source_path"
@@ -45,9 +45,10 @@ for section in $section; do
     filling "$store_path" "$destination_path" "$target_size" "$max_files"
 
     echo "Done section $section"
+    echo ""
     
     if [ -z "$destination_path" ]; then
-        return
+        continue
     fi
     
     echo "Total size: $(du -s "$destination_path" | cut -f 1)"
