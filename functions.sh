@@ -122,7 +122,7 @@ function getAnimeEpisode() {
     # If $animeEpisode is not empty, add a space at the end of it
     if [ -n "$name" ]; then
         name="$name "
-    fi    
+    fi
     echo -n "$name"
 }
 
@@ -149,4 +149,61 @@ function findSimilar() {
     done
 
     echo -n "$name"
+}
+
+function aniparse() {
+    local sourcePath="$1"
+    local storePath="$2"
+    local fileFilter="$3"
+    local file
+    local filename
+    local animeExt
+    local animeName
+    local animeSeason
+    local animeEpisode
+    local dirname
+
+    if [ -z "$sourcePath" ] || [ -z "$storePath" ]; then
+        echo "sourcePath or storePath is empty. Exit"
+        return
+    fi
+
+    mkdir -p "$sourcePath"
+    mkdir -p "$storePath"
+
+    # traverse all top-level files in a source folder
+    shopt -s globstar nullglob
+    for file in "$sourcePath"/**/*; do
+        # if it's a directory, skip
+        if [ -d "$file" ]; then
+            continue
+        fi
+
+        filename=$(basename "$file")
+        # skip files that do not start with fileFilter in any case
+        if ! echo "$filename" | grep -iq "$fileFilter"; then
+            continue
+        fi
+
+        animeExt=$(echo "$filename" | rev | cut -d '.' -f 1 | rev)
+
+        # if the file extension is longer than 3 characters, skip iteration
+        if [ ${#animeExt} -gt 3 ]; then
+            echo "Skip an incomplete file: $filename"
+            continue
+        fi
+
+        name=$(clearFileName "$filename")
+
+        animeName=$(getAnimeName "$name")
+        animeSeason=$(getAnimeSeason "$name")
+        animeEpisode=$(getAnimeEpisode "$name")
+
+        dirname=$(findSimilar "$animeName" "$sourcePath")
+
+        mkdir -p "$storePath/$dirname"
+
+        mv "$file" "$storePath/$dirname/$animeSeason$animeEpisode$animeName.$animeExt"
+        echo "Move file to store: $file to $dirname/$animeSeason$animeEpisode$animeName.$animeExt"
+    done
 }

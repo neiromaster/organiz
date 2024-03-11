@@ -9,3 +9,5 @@ export destinationPath=
 export fileFilter="\[ani"
 
 export targetSize=20971520
+
+export maxFiles=2
