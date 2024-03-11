@@ -38,12 +38,18 @@ for section in $section; do
     echo "Max files: $max_files"
     echo ""
 
-    echo -e "Start: source $source_path\ndestination $store_path"
+    echo -e "Start: source $source_path\nsource $store_path"
 
     aniparse "$source_path" "$store_path" "$file_filter"
 
     filling "$store_path" "$destination_path" "$target_size" "$max_files"
 
     echo "Done section $section"
+    
+    if [ -z "$destination_path" ]; then
+        return
+    fi
+    
     echo "Total size: $(du -s "$destination_path" | cut -f 1)"
+    echo ""
 done

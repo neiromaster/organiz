@@ -227,18 +227,18 @@ function filling {
     # if store_path is empty, then finish the job
     if [ -z "$store_path" ]; then
         echo "store_path is empty. Exit"
-        exit 0
+        return
     fi
 
     # if destination_path is empty, then finish the job
     if [ -z "$destination_path" ]; then
         echo "destination_path is empty. Exit"
-        exit 0
+        return
     fi
 
     if [ -z "$max_files" ]; then
         echo "max_files is empty. Exit"
-        exit 0
+        return
     fi
 
     echo -e "Second step:\nMove files to $destination_path"
@@ -255,7 +255,7 @@ function filling {
         # if total_size is greater than 20G, then terminate the script
         if [ "$total_size" -gt "$target_size" ]; then
             echo "Total size: $total_size. Exit"
-            exit 0
+            return
         fi
 
         newdir="$destination_path/$(basename "$directory")"
