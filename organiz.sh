@@ -2,61 +2,48 @@
 
 source functions.sh
 
-source config
-
-echo -e "Start: source $sourcePath\ndestination $storePath"
-
-# если sourcePath задано, то запускаем функцию aniparse
-aniparse "$sourcePath" "$storePath" "$fileFilter"
-
-# if destinationPath is empty, then finish the job
-if [ -z "$destinationPath" ]; then
-    echo "destinationPath is empty. Exit"
-    exit 0
+config_file=
+if [ -f config.conf ]; then
+    config_file=$(realpath config.conf)
+elif [ -f "${HOME}/.config.conf" ]; then
+    config_file=$(realpath "${HOME}/.config.conf")
+elif [ -f "${XDG_CONFIG_HOME:-${HOME}/.config}/organiz/config.conf" ]; then
+    config_file=$(realpath "${XDG_CONFIG_HOME:-${HOME}/.config}/organiz/config.conf")
+else
+    echo "Config file not found"
+    exit 1
 fi
 
-echo -e "Second step:\nMove files to $destinationPath"
+section=$(get_ini_sections "$config_file")
 
-mkdir -p "$destinationPath"
+if [ -z "$section" ]; then
+    echo "No sections found"
+    exit 1
+fi
 
-# traverse all storePath subfolders
-for directory in "$storePath"/*; do
-    if [ ! -d "$directory" ]; then
-        continue
-    fi
+for section in $section; do
+    source_path=$(parse_ini "$config_file" "$section" sourcePath)
+    store_path=$(parse_ini "$config_file" "$section" storePath)
+    destination_path=$(parse_ini "$config_file" "$section" destinationPath)
+    file_filter=$(parse_ini "$config_file" "$section" fileFilter)
+    target_size=$(parse_ini "$config_file" "$section" targetSize)
+    max_files=$(parse_ini "$config_file" "$section" maxFiles)
 
-    totalSize=$(du -s "$destinationPath" | cut -f 1)
-    # if totalSize is greater than 20G, then terminate the script
-    if [ "$totalSize" -gt "$targetSize" ]; then
-        echo "Total size: $totalSize. Exit"
-        exit 0
-    fi
+    echo "Section: $section"
+    echo "Source: $source_path"
+    echo "Store: $store_path"
+    echo "Destination: $destination_path"
+    echo "File filter: $file_filter"
+    echo "Target size: $target_size"
+    echo "Max files: $max_files"
+    echo ""
 
-    newdir="$destinationPath/$(basename "$directory")"
-    # if there is no folder named newdir, create one
-    mkdir -p "$newdir"
+    echo -e "Start: source $source_path\ndestination $store_path"
 
-    count=$(ls -1 "$newdir" | wc -l)
-    echo "$count files in $newdir"
+    aniparse "$source_path" "$store_path" "$file_filter"
 
-    if [ "$count" -lt $maxFiles ]; then
-        # move no more than two files from the directory to the new folder
-        cd "$directory" || exit
+    filling "$store_path" "$destination_path" "$target_size" "$max_files"
 
-        # calculate the number of files to be migrated: the redistributed number minus the number in count
-        newcount=$((maxFiles - count))
-
-
-        ls -1 | sort | head -"$newcount" | xargs -I {} mv {} "$newdir"
-        echo "Move files to target folder: $newcount files from $directory to $newdir"
-    fi
-
-    # delete an empty folder
-    if [ -z "$(ls -A "$directory")" ]; then
-        rm -rf "$directory"
-        echo "Remove empty store folder: $directory"
-    fi
+    echo "Done section $section"
+    echo "Total size: $(du -s "$destination_path" | cut -f 1)"
 done
-
-echo "Done"
-echo "Total size: $(du -s "$destinationPath" | cut -f 1)"
