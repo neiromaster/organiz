@@ -216,7 +216,7 @@ function aniparse() {
 function filling {
     local store_path="$1"
     local destination_path="$2"
-    local target_size="$3" || 1000000000 # 1TB
+    local target_size="$3"
     local max_files="$4"
     local total_size
     local newdir
