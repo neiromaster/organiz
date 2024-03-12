@@ -1,0 +1,14 @@
+[main]
+sourcePath=/Users/user/projects/organiz/test/source
+storePath=/Users/user/projects/organiz/test/store
+destinationPath=
+fileFilter=\[ani
+targetSize=20971520
+maxFiles=1
+
+[other]
+sourcePath=
+storePath=/Users/user/projects/organiz/test/store
+destinationPath=/Users/user/projects/organiz/test/dest
+targetSize=20971520
+maxFiles=2
