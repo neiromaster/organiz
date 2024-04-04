@@ -272,7 +272,7 @@ function filling {
             # calculate the number of files to be migrated: the redistributed number minus the number in count
             newcount=$((max_files - count))
 
-            ls -1 | sort | head -"$newcount" | xargs -I {} mv {} "$newdir"
+            find . -type f -print0 | xargs -0 -n1 basename | sort | head -"$newcount" | xargs -I {} mv {} "$newdir"
             echo "Move files to target folder: $newcount files from $directory to $newdir"
         fi
 
