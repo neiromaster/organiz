@@ -13,5 +13,7 @@ process_include() {
     done <"$file"
 }
 
+mkdir -p build
+
 # Starting file processing
 process_include organiz.sh | sed -e '2,$ s/^#!.*//' -e '/^$/ d' > build/organiz.sh
