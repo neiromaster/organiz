@@ -2,3 +2,4 @@ config
 .idea
 .vscode
 build/*
+.aider*
