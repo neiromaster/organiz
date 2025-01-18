@@ -345,6 +345,9 @@ update_script() {
       # Remove the temporary file
       rm "$TEMP_SCRIPT"
 
+      # Set execution permissions on the script
+      chmod +x "$0"
+
       # Restart the script
       exec $0 "$@"
     else
