@@ -20,10 +20,21 @@ jobs:
 
       - name: Run build script
         run: ./build.sh
+
+      - name: Upload build directory as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-output
+          path: build
   create_release:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: build-output
+          path: build
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
