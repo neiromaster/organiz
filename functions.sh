@@ -1,5 +1,24 @@
 #!/bin/bash
 
+# Function to format date and time
+format_date() {
+  date +"%Y/%m/%d-%H:%M:%S"
+}
+
+# Log file
+LOG_FILE="organiz.log"
+
+# Function to log messages with timestamp
+log_message() {
+  echo "$(format_date) - $1" >>"$LOG_FILE"
+}
+
+# Function to log errors and exit
+log_error_and_exit() {
+  log_message "$1"
+  exit 1
+}
+
 # function to calculate levenshtein distance
 # $1 - target
 # $2 - given
