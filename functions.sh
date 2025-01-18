@@ -326,7 +326,7 @@ function get_ini_sections() {
 update_script() {
   # Get the download link for the latest version of the script from GitHub
   local SCRIPT_URL
-  SCRIPT_URL=$(curl -s https://api.github.com/repos/neiromaster/organiz/releases/latest | grep -oP '"browser_download_url": "\K[^"]+')
+  SCRIPT_URL=$(curl -s https://api.github.com/repos/neiromaster/organiz/releases/latest | awk -F'"' '/browser_download_url/ {print $4}')
 
   # Create a temporary file
   local TEMP_SCRIPT
