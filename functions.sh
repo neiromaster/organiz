@@ -370,6 +370,8 @@ update_script() {
       # Set execution permissions on the script
       chmod +x "$0"
 
+      log_message "The script has been updated."
+
       # Restart the script
       exec $0 "$@"
     else
