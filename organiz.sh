@@ -2,6 +2,8 @@
 
 source functions.sh
 
+update_script "$@"
+
 config_file=
 if [ -f config.conf ]; then
     config_file=$(realpath config.conf)

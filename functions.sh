@@ -321,3 +321,39 @@ function get_ini_sections() {
     local ini_file="$1"
     awk -F '[][]' '/\[.*\]/{print $2}' "$ini_file"
 }
+
+# Function to update the script
+update_script() {
+  # Get the download link for the latest version of the script from GitHub
+  local SCRIPT_URL
+  SCRIPT_URL=$(curl -s https://api.github.com/repos/neiromaster/organiz/releases/latest | grep -oP '"browser_download_url": "\K[^"]+')
+
+  # Create a temporary file
+  local TEMP_SCRIPT
+  TEMP_SCRIPT=$(mktemp)
+
+  # Download the new version of the script
+  # Check if the download was successful
+  if ! curl -o "$TEMP_SCRIPT" "$SCRIPT_URL"; then
+    echo "New version of the script downloaded."
+
+    # Compare the contents of the current script and the new version
+    if ! cmp -s "$0" "$TEMP_SCRIPT"; then
+      # Copy the new version over the current one
+      cp "$TEMP_SCRIPT" "$0"
+
+      # Remove the temporary file
+      rm "$TEMP_SCRIPT"
+
+      # Restart the script
+      exec $0 "$@"
+    else
+      echo "The script is already up-to-date."
+      rm "$TEMP_SCRIPT"
+    fi
+  else
+    echo "Error downloading the new version of the script."
+    # Remove the temporary file
+    rm "$TEMP_SCRIPT"
+  fi
+}

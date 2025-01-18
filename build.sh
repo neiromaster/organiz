@@ -3,6 +3,7 @@
 # A function for processing the source directive
 process_include() {
     local file="$1"
+    local line
 
     while IFS= read -r line; do
         if [[ "$line" =~ ^\source\ (.+) ]]; then
