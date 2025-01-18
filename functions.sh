@@ -334,7 +334,7 @@ update_script() {
 
   # Download the new version of the script
   # Check if the download was successful
-  if ! curl -o "$TEMP_SCRIPT" "$SCRIPT_URL"; then
+  if curl -s -o "$TEMP_SCRIPT" "$SCRIPT_URL"; then
     echo "New version of the script downloaded."
 
     # Compare the contents of the current script and the new version
