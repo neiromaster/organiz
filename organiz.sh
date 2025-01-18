@@ -12,14 +12,14 @@ elif [ -f "${HOME}/.config.conf" ]; then
 elif [ -f "${XDG_CONFIG_HOME:-${HOME}/.config}/organiz/config.conf" ]; then
   config_file=$(realpath "${XDG_CONFIG_HOME:-${HOME}/.config}/organiz/config.conf")
 else
-  log_message "Config file not found"
+  log_error "Config file not found"
   exit 1
 fi
 
 section=$(get_ini_sections "$config_file")
 
 if [ -z "$section" ]; then
-  log_message "No sections found"
+  log_error "No sections found"
   exit 1
 fi
 

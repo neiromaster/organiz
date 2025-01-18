@@ -377,7 +377,7 @@ update_script() {
       rm "$TEMP_SCRIPT"
     fi
   else
-    log_message "Error downloading the new version of the script."
+    log_error "Error downloading the new version of the script."
     # Remove the temporary file
     rm "$TEMP_SCRIPT"
   fi
