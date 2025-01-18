@@ -301,7 +301,6 @@ function filling {
         rclone move "$store_path/$directory/$file" "$newdir"
       done
 
-      #            find . -type f -print0 | xargs -0 -n1 basename | sort | head -"$newcount" | xargs -I {} rclone move {} "$newdir"
       log_message "Move files to target folder: $newcount files from $directory to $newdir"
     fi
 
