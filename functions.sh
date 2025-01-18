@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # function to calculate levenshtein distance
 # $1 - target
@@ -162,6 +162,8 @@ function aniparse() {
     local anime_season
     local anime_episode
     local dirname
+    local OLDIFS
+    local file_list
 
     if [ -z "$source_path" ]; then
         echo "source_path is empty. Exit"
@@ -173,17 +175,14 @@ function aniparse() {
         return
     fi
 
-    mkdir -p "$source_path"
-    mkdir -p "$store_path"
+    rclone mkdir "$source_path"
+    rclone mkdir "$store_path"
 
     # traverse all top-level files in a source folder
-    shopt -s globstar nullglob
-    for file in "$source_path"/**/*; do
-        # if it's a directory, skip
-        if [ -d "$file" ]; then
-            continue
-        fi
-
+    OLDIFS=$IFS
+    file_list=$(rclone lsf -R --files-only "$source_path")
+    IFS=$'\n'
+    for file in $file_list; do
         filename=$(basename "$file")
         # skip files that do not start with file_filter in any case
         if ! echo "$filename" | grep -iq "$file_filter"; then
@@ -206,11 +205,12 @@ function aniparse() {
 
         dirname=$(find_similar "$anime_name" "$source_path")
 
-        mkdir -p "$store_path/$dirname"
+        rclone mkdir "$store_path/$dirname"
 
-        mv "$file" "$store_path/$dirname/$anime_season$anime_episode$anime_name.$anime_ext"
+        rclone moveto "$source_path/$file" "$store_path/$dirname/$anime_season$anime_episode$anime_name.$anime_ext"
         echo "Move file to store: $file to $dirname/$anime_season$anime_episode$anime_name.$anime_ext"
     done
+    IFS=$OLDIFS
 }
 
 function filling {
@@ -223,6 +223,10 @@ function filling {
     local count
     local newcount
     local directory
+    local directories
+    local file
+    local files_to_move
+    local file_list
 
     # if store_path is empty, then finish the job
     if [ -z "$store_path" ]; then
@@ -243,15 +247,14 @@ function filling {
 
     echo -e "Second step:\nMove files to $destination_path"
 
-    mkdir -p "$destination_path"
+    rclone mkdir "$destination_path"
 
+    OLDIFS=$IFS
+    directories=$(rclone lsf --dirs-only -d=false "$store_path")
+    IFS=$'\n'
     # traverse all store_path subfolders
-    for directory in "$store_path"/*; do
-        if [ ! -d "$directory" ]; then
-            continue
-        fi
-
-        total_size=$(du -s "$destination_path" | cut -f 1)
+    for directory in $directories; do
+        total_size=$(rclone size "$destination_path" --json | grep -o '"bytes":[0-9]*' | grep -o '[0-9]*')
         # if total_size is greater than 20G, then terminate the script
         if [ "$total_size" -gt "$target_size" ]; then
             echo "Total size: $total_size. Exit"
@@ -260,28 +263,36 @@ function filling {
 
         newdir="$destination_path/$(basename "$directory")"
         # if there is no folder named newdir, create one
-        mkdir -p "$newdir"
+        rclone mkdir "$newdir"
 
-        count=$(ls -1 "$newdir" | wc -l)
+        count=$(rclone size "$newdir" --json | grep -o '"count":[0-9]*' | grep -o '[0-9]*')
         echo "$count files in $newdir"
 
         if [ "$count" -lt "$max_files" ]; then
             # move no more than two files from the directory to the new folder
-            cd "$directory" || exit
+
+            file_list=$(rclone lsf -R --files-only "$store_path/$directory")
 
             # calculate the number of files to be migrated: the redistributed number minus the number in count
             newcount=$((max_files - count))
 
-            find . -type f -print0 | xargs -0 -n1 basename | sort | head -"$newcount" | xargs -I {} mv {} "$newdir"
+            files_to_move=$(echo "$file_list" | head -"$newcount")
+
+            for file in $files_to_move; do
+                rclone move "$store_path/$directory/$file" "$newdir"
+            done
+
+#            find . -type f -print0 | xargs -0 -n1 basename | sort | head -"$newcount" | xargs -I {} rclone move {} "$newdir"
             echo "Move files to target folder: $newcount files from $directory to $newdir"
         fi
 
         # delete an empty folder
-        if [ -z "$(ls -A "$directory")" ]; then
-            rm -rf "$directory"
+        if [ -z "$(rclone lsf --files-only "$store_path/$directory")" ]; then
+            rclone rmdirs "$store_path/$directory"
             echo "Remove empty store folder: $directory"
         fi
     done
+    IFS=$OLDIFS
 }
 
 function parse_ini() {

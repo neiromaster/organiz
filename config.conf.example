@@ -1,14 +1,14 @@
 [main]
-sourcePath=/Users/user/projects/organiz/test/source
-storePath=/Users/user/projects/organiz/test/store
-destinationPath=
-fileFilter=\[ani
-targetSize=20971520
-maxFiles=1
+source_path=remote:MAIN/sync/source
+store_path=remote:MAIN/sync/store
+destination_path=remote:MAIN/sync/dest
+file_filter=\[ani
+target_size=20971520000
+max_files=2
 
 [other]
-sourcePath=
-storePath=/Users/user/projects/organiz/test/store
-destinationPath=/Users/user/projects/organiz/test/dest
-targetSize=20971520
-maxFiles=2
+source_path=
+store_path=remote2:MAIN/other/store
+destination_path=remote2:MAIN/other/dest
+target_size=20971520000
+max_files=1

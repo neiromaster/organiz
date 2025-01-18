@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 source functions.sh
 
@@ -38,7 +38,7 @@ for section in $section; do
     echo "Max files: $max_files"
     echo ""
 
-    echo -e "Start: source $source_path\nsource $store_path"
+    echo -e "Start:\nsource $source_path\nstore $store_path"
 
     aniparse "$source_path" "$store_path" "$file_filter"
 
@@ -51,6 +51,6 @@ for section in $section; do
         continue
     fi
     
-    echo "Total size: $(du -s "$destination_path" | cut -f 1)"
+    echo "Total size: $(rclone size "$destination_path" --json | grep -o '"bytes":[0-9]*' | grep -o '[0-9]*')"
     echo ""
 done
