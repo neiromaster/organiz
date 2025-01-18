@@ -53,6 +53,6 @@ for section in $section; do
     continue
   fi
 
-  log_message "Total size: $(rclone size \"$destination_path\" --json | grep -o '\"bytes\":[0-9]*' | grep -o '[0-9]*')"
+  log_message "Total size: $(rclone size "$destination_path" --json | grep -o '\"bytes\":[0-9]*' | grep -o '[0-9]*')"
   log_message ""
 done
