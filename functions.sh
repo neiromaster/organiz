@@ -13,6 +13,10 @@ log_message() {
   echo "$(format_date) - $1" >>"$LOG_FILE"
 }
 
+log_error() {
+  echo "$(format_date) - ERROR: $1" >>"$LOG_FILE"
+}
+
 # Function to log errors and exit
 log_error_and_exit() {
   log_message "$1"
