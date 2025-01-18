@@ -12,14 +12,14 @@ elif [ -f "${HOME}/.config.conf" ]; then
 elif [ -f "${XDG_CONFIG_HOME:-${HOME}/.config}/organiz/config.conf" ]; then
   config_file=$(realpath "${XDG_CONFIG_HOME:-${HOME}/.config}/organiz/config.conf")
 else
-  echo "Config file not found"
+  log_message "Config file not found"
   exit 1
 fi
 
 section=$(get_ini_sections "$config_file")
 
 if [ -z "$section" ]; then
-  echo "No sections found"
+  log_message "No sections found"
   exit 1
 fi
 
@@ -31,28 +31,28 @@ for section in $section; do
   target_size=$(parse_ini "$config_file" "$section" target_size)
   max_files=$(parse_ini "$config_file" "$section" max_files)
 
-  echo "Section: $section"
-  echo "Source: $source_path"
-  echo "Store: $store_path"
-  echo "Destination: $destination_path"
-  echo "File filter: $file_filter"
-  echo "Target size: $target_size"
-  echo "Max files: $max_files"
-  echo ""
+  log_message "Section: $section"
+  log_message "Source: $source_path"
+  log_message "Store: $store_path"
+  log_message "Destination: $destination_path"
+  log_message "File filter: $file_filter"
+  log_message "Target size: $target_size"
+  log_message "Max files: $max_files"
+  log_message ""
 
-  echo -e "Start:\nsource $source_path\nstore $store_path"
+  log_message "Start: source $source_path, store $store_path"
 
   aniparse "$source_path" "$store_path" "$file_filter"
 
   filling "$store_path" "$destination_path" "$target_size" "$max_files"
 
-  echo "Done section $section"
-  echo ""
+  log_message "Done section $section"
+  log_message ""
 
   if [ -z "$destination_path" ]; then
     continue
   fi
 
-  echo "Total size: $(rclone size "$destination_path" --json | grep -o '"bytes":[0-9]*' | grep -o '[0-9]*')"
-  echo ""
+  log_message "Total size: $(rclone size \"$destination_path\" --json | grep -o '\"bytes\":[0-9]*' | grep -o '[0-9]*')"
+  log_message ""
 done

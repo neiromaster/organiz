@@ -185,12 +185,12 @@ function aniparse() {
   local file_list
 
   if [ -z "$source_path" ]; then
-    echo "source_path is empty. Exit"
+    log_message "source_path is empty. Exit"
     return
   fi
 
   if [ -z "$store_path" ]; then
-    echo "store_path is empty. Exit"
+    log_message "store_path is empty. Exit"
     return
   fi
 
@@ -212,7 +212,7 @@ function aniparse() {
 
     # if the file extension is longer than 3 characters, skip iteration
     if [ ${#anime_ext} -gt 3 ]; then
-      echo "Skip an incomplete file: $filename"
+      log_message "Skip an incomplete file: $filename"
       continue
     fi
 
@@ -227,7 +227,7 @@ function aniparse() {
     rclone mkdir "$store_path/$dirname"
 
     rclone moveto "$source_path/$file" "$store_path/$dirname/$anime_season$anime_episode$anime_name.$anime_ext"
-    echo "Move file to store: $file to $dirname/$anime_season$anime_episode$anime_name.$anime_ext"
+    log_message "Move file to store: $file to $dirname/$anime_season$anime_episode$anime_name.$anime_ext"
   done
   IFS=$OLDIFS
 }
@@ -249,22 +249,22 @@ function filling {
 
   # if store_path is empty, then finish the job
   if [ -z "$store_path" ]; then
-    echo "store_path is empty. Exit"
+    log_message "store_path is empty. Exit"
     return
   fi
 
   # if destination_path is empty, then finish the job
   if [ -z "$destination_path" ]; then
-    echo "destination_path is empty. Exit"
+    log_message "destination_path is empty. Exit"
     return
   fi
 
   if [ -z "$max_files" ]; then
-    echo "max_files is empty. Exit"
+    log_message "max_files is empty. Exit"
     return
   fi
 
-  echo -e "Second step:\nMove files to $destination_path"
+  log_message "Second step: Move files to $destination_path"
 
   rclone mkdir "$destination_path"
 
@@ -276,7 +276,7 @@ function filling {
     total_size=$(rclone size "$destination_path" --json | grep -o '"bytes":[0-9]*' | grep -o '[0-9]*')
     # if total_size is greater than 20G, then terminate the script
     if [ "$total_size" -gt "$target_size" ]; then
-      echo "Total size: $total_size. Exit"
+      log_message "Total size: $total_size. Exit"
       return
     fi
 
@@ -285,7 +285,7 @@ function filling {
     rclone mkdir "$newdir"
 
     count=$(rclone size "$newdir" --json | grep -o '"count":[0-9]*' | grep -o '[0-9]*')
-    echo "$count files in $newdir"
+    log_message "$count files in $newdir"
 
     if [ "$count" -lt "$max_files" ]; then
       # move no more than two files from the directory to the new folder
@@ -302,13 +302,13 @@ function filling {
       done
 
       #            find . -type f -print0 | xargs -0 -n1 basename | sort | head -"$newcount" | xargs -I {} rclone move {} "$newdir"
-      echo "Move files to target folder: $newcount files from $directory to $newdir"
+      log_message "Move files to target folder: $newcount files from $directory to $newdir"
     fi
 
     # delete an empty folder
     if [ -z "$(rclone lsf --files-only "$store_path/$directory")" ]; then
       rclone rmdirs "$store_path/$directory"
-      echo "Remove empty store folder: $directory"
+      log_message "Remove empty store folder: $directory"
     fi
   done
   IFS=$OLDIFS
@@ -354,7 +354,7 @@ update_script() {
   # Download the new version of the script
   # Check if the download was successful
   if curl -s -L -o "$TEMP_SCRIPT" "$SCRIPT_URL"; then
-    echo "New version of the script downloaded."
+    log_message "New version of the script downloaded."
 
     # Compare the contents of the current script and the new version
     if ! cmp -s "$0" "$TEMP_SCRIPT"; then
@@ -370,11 +370,11 @@ update_script() {
       # Restart the script
       exec $0 "$@"
     else
-      echo "The script is already up-to-date."
+      log_message "The script is already up-to-date."
       rm "$TEMP_SCRIPT"
     fi
   else
-    echo "Error downloading the new version of the script."
+    log_message "Error downloading the new version of the script."
     # Remove the temporary file
     rm "$TEMP_SCRIPT"
   fi
