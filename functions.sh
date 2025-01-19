@@ -252,8 +252,7 @@ function sync_store_and_backup() {
 
   if [ -n "$backup_path" ]; then
     log_message "Syncing store and backup: $store_path <-> $backup_path"
-    rclone sync "$store_path" "$backup_path"
-    rclone sync "$backup_path" "$store_path"
+    rclone bisync "$store_path" "$backup_path"
   fi
 }
 
