@@ -30,10 +30,12 @@ for section in $section; do
   file_filter=$(parse_ini "$config_file" "$section" file_filter)
   target_size=$(parse_ini "$config_file" "$section" target_size)
   max_files=$(parse_ini "$config_file" "$section" max_files)
+  backup_path=$(parse_ini "$config_file" "$section" backup_path)
 
   log_message "Section: $section"
   log_message "Source: $source_path"
   log_message "Store: $store_path"
+  log_message "Backup: $backup_path"
   log_message "Destination: $destination_path"
   log_message "File filter: $file_filter"
   log_message "Target size: $target_size"
@@ -43,6 +45,12 @@ for section in $section; do
   log_message "Start: source $source_path, store $store_path"
 
   aniparse "$source_path" "$store_path" "$file_filter"
+
+  if [ -n "$backup_path" ]; then
+    log_message "Syncing store and backup: $store_path <-> $backup_path"
+    rclone sync "$store_path" "$backup_path"
+    rclone sync "$backup_path" "$store_path"
+  fi
 
   filling "$store_path" "$destination_path" "$target_size" "$max_files"
 

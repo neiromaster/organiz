@@ -5,6 +5,7 @@ destination_path=remote:MAIN/sync/dest
 file_filter=\[ani
 target_size=20971520000
 max_files=2
+backup_path=
 
 [other]
 source_path=
@@ -12,3 +13,4 @@ store_path=remote2:MAIN/other/store
 destination_path=remote2:MAIN/other/dest
 target_size=20971520000
 max_files=1
+backup_path=
