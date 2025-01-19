@@ -60,14 +60,3 @@ for section in $section; do
   log_message "Total size: $(rclone size "$destination_path" --json | grep -o '\"bytes\":[0-9]*' | grep -o '[0-9]*')"
   log_message ""
 done
-
-sync_store_and_backup() {
-  local store_path="$1"
-  local backup_path="$2"
-
-  if [ -n "$backup_path" ]; then
-    log_message "Syncing store and backup: $store_path <-> $backup_path"
-    rclone sync "$store_path" "$backup_path"
-    rclone sync "$backup_path" "$store_path"
-  fi
-}
