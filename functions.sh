@@ -187,6 +187,7 @@ function aniparse() {
   local dirname
   local OLDIFS
   local file_list
+  local error_output
 
   if [ -z "$source_path" ]; then
     log_message "source_path is empty. Exit"
@@ -198,11 +199,15 @@ function aniparse() {
     return
   fi
 
-  if ! rclone mkdir "$source_path" 2>&1 | tee -a >(log_error); then
+  error_output=$(rclone mkdir "$source_path" 2>&1 >/dev/null)
+  if [ $? -ne 0 ]; then
     log_error "Failed to create source directory: $source_path"
+    log_error "$error_output"
   fi
-  if ! rclone mkdir "$store_path" 2>&1 | tee -a >(log_error); then
+  error_output=$(rclone mkdir "$store_path" 2>&1 >/dev/null)
+  if [ $? -ne 0 ]; then
     log_error "Failed to create store directory: $store_path"
+    log_error "$error_output"
   fi
 
   # traverse all top-level files in a source folder
@@ -232,13 +237,17 @@ function aniparse() {
 
     dirname=$(find_similar "$anime_name" "$source_path")
 
-    if ! rclone mkdir "$store_path/$dirname" 2>&1 | tee -a >(log_error); then
+    error_output=$(rclone mkdir "$store_path/$dirname" 2>&1 >/dev/null)
+    if [ $? -ne 0 ]; then
       log_error "Failed to create directory: $store_path/$dirname"
+      log_error "$error_output"
       continue
     fi
 
-    if ! rclone moveto "$source_path/$file" "$store_path/$dirname/$anime_season$anime_episode$anime_name.$anime_ext" 2>&1 | tee -a >(log_error); then
+    error_output=$(rclone moveto "$source_path/$file" "$store_path/$dirname/$anime_season$anime_episode$anime_name.$anime_ext" 2>&1 >/dev/null)
+    if [ $? -ne 0 ]; then
       log_error "Failed to move file: $file to $dirname/$anime_season$anime_episode$anime_name.$anime_ext"
+      log_error "$error_output"
       continue
     fi
     log_message "Move file to store: $file to $dirname/$anime_season$anime_episode$anime_name.$anime_ext"
@@ -270,6 +279,7 @@ function filling {
   local file
   local files_to_move
   local file_list
+  local error_output
 
   # if store_path is empty, then finish the job
   if [ -z "$store_path" ]; then
@@ -306,8 +316,10 @@ function filling {
 
     newdir="$destination_path/$(basename "$directory")"
     # if there is no folder named newdir, create one
-    if ! rclone mkdir "$newdir" 2>&1 | tee -a >(log_error); then
+    error_output=$(rclone mkdir "$newdir" 2>&1 >/dev/null)
+    if [ $? -ne 0 ]; then
       log_error "Failed to create directory: $newdir"
+      log_error "$error_output"
       continue
     fi
 
@@ -325,8 +337,10 @@ function filling {
       files_to_move=$(echo "$file_list" | head -"$newcount")
 
       for file in $files_to_move; do
-        if ! rclone move "$store_path/$directory/$file" "$newdir" 2>&1 | tee -a >(log_error); then
+        error_output=$(rclone move "$store_path/$directory/$file" "$newdir" 2>&1 >/dev/null)
+        if [ $? -ne 0 ]; then
           log_error "Failed to move file: $file from $store_path/$directory to $newdir"
+          log_error "$error_output"
           continue
         fi
       done
@@ -336,8 +350,10 @@ function filling {
 
     # delete an empty folder
     if [ -z "$(rclone lsf --files-only "$store_path/$directory")" ]; then
-      if ! rclone rmdirs "$store_path/$directory" 2>&1 | tee -a >(log_error); then
+      error_output=$(rclone rmdirs "$store_path/$directory" 2>&1 >/dev/null)
+      if [ $? -ne 0 ]; then
         log_error "Failed to remove empty store folder: $store_path/$directory"
+        log_error "$error_output"
         continue
       fi
       log_message "Remove empty store folder: $directory"
