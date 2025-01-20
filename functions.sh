@@ -31,7 +31,7 @@ function log_error() {
 
 # Function to log errors and exit
 function log_error_and_exit() {
-  log_message "$1"
+  log_error "$1"
   exit 1
 }
 
