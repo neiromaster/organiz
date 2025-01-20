@@ -2,7 +2,7 @@
 
 # Function to check if required commands are available
 check_commands() {
-  local required_commands="date rclone sed grep awk curl cmp mktemp head rev cut"
+  local required_commands="date rclone sed rg awk curl cmp mktemp head rev cut"
   local command
   for command in $required_commands; do
     if ! command -v "$command" &> /dev/null; then
@@ -127,7 +127,7 @@ function clear_file_name() {
 function get_anime_name() {
   local name="$*"
   local raw_name
-  raw_name=$(echo "$name" | grep -oP '^.*?(?=( - | \[))')
+  raw_name=$(echo "$name" | rg -oP '^.*?(?=( - | \[))')
   name=$(trim_all "$raw_name")
   echo -n "$name"
 }
@@ -137,7 +137,7 @@ function get_anime_name() {
 function get_anime_season() {
   local name="$*"
   local rawSeason
-  rawSeason=$(echo "$name" | grep -oP '(?<=\[).*?(?=\])' | head -n 1)
+  rawSeason=$(echo "$name" | rg -oP '(?<=\[).*?(?=\])' | head -n 1)
   name=$(trim_all "$rawSeason")
   # if there is no hyphen in $rawSeason, then reset the variable to empty, otherwise add a space to the end of the variable
   if [[ "$rawSeason" != *-* ]]; then
@@ -152,7 +152,7 @@ function get_anime_season() {
 # $1 - file name
 function get_anime_episode() {
   local name="$*"
-  name=$(echo "$name" | grep -oP '(?<=\s-\s)\d+')
+  name=$(echo "$name" | rg -oP '(?<=\s-\s)\d+')
   name=$(trim_all "$name")
 
   # If $anime_episode is not empty, add a space at the end of it
@@ -230,7 +230,7 @@ function aniparse() {
   for file in $file_list; do
     filename=$(basename "$file")
     # skip files that do not start with file_filter in any case
-    if ! echo "$filename" | grep -iq "$file_filter"; then
+    if ! echo "$filename" | rg -iq "$file_filter"; then
       continue
     fi
 
