@@ -4,11 +4,15 @@
 function check_commands() {
   local required_commands="date rclone sed rg awk curl cmp mktemp head rev cut"
   local command
+  local missing_commands=""
   for command in $required_commands; do
     if ! command -v "$command" &> /dev/null; then
-      log_error_and_exit "Required command not found: $command"
+      missing_commands+="$command "
     fi
   done
+  if [ -n "$missing_commands" ]; then
+    log_error_and_exit "Required commands not found: $missing_commands"
+  fi
 }
 
 # Function to format date and time
