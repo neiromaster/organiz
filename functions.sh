@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# Function to check if required commands are available
+check_commands() {
+  local required_commands="date rclone sed grep awk curl cmp mktemp head rev cut"
+  local command
+  for command in $required_commands; do
+    if ! command -v "$command" &> /dev/null; then
+      log_error_and_exit "Required command not found: $command"
+    fi
+  done
+}
+
+check_commands
+
 # Function to format date and time
 format_date() {
   date +"%Y/%m/%d-%H:%M:%S"
