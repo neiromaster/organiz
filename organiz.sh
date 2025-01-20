@@ -1,6 +1,11 @@
 #!/bin/bash
 
+# Log file
+LOG_FILE="organiz.log"
+
 source functions.sh
+
+check_commands
 
 update_script "$@"
 
