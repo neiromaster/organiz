@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Function to check if required commands are available
-check_commands() {
+function check_commands() {
   local required_commands="date rclone sed rg awk curl cmp mktemp head rev cut"
   local command
   for command in $required_commands; do
@@ -11,27 +11,22 @@ check_commands() {
   done
 }
 
-check_commands
-
 # Function to format date and time
-format_date() {
+function format_date() {
   date +"%Y/%m/%d-%H:%M:%S"
 }
 
-# Log file
-LOG_FILE="organiz.log"
-
 # Function to log messages with timestamp
-log_message() {
+function log_message() {
   echo "$(format_date) - $1" >>"$LOG_FILE"
 }
 
-log_error() {
+function log_error() {
   echo "$(format_date) - ERROR: $1" >>"$LOG_FILE"
 }
 
 # Function to log errors and exit
-log_error_and_exit() {
+function log_error_and_exit() {
   log_message "$1"
   exit 1
 }
