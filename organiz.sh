@@ -3,6 +3,9 @@
 # Log file
 LOG_FILE="organiz.log"
 
+# Script version
+SCRIPT_VERSION="###########"
+
 source functions.sh
 
 check_commands

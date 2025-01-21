@@ -6,7 +6,7 @@ function check_commands() {
   local command
   local missing_commands=""
   for command in $required_commands; do
-    if ! command -v "$command" &> /dev/null; then
+    if ! command -v "$command" &>/dev/null; then
       missing_commands+="$command "
     fi
   done
@@ -407,37 +407,41 @@ function update_script() {
   local SCRIPT_URL
   SCRIPT_URL=$(curl -s https://api.github.com/repos/neiromaster/organiz/releases/latest | awk -F'"' '/browser_download_url/ {print $4}')
 
+  local release_number
+  release_number=$(echo "$SCRIPT_URL" | awk -F'/' '{print $(NF-1)}')
+
+  # Check if the download was successful
+  if [ "$release_number" = "$SCRIPT_VERSION" ]; then
+    log_message "The script is already up-to-date."
+    return
+  fi
+
   # Create a temporary file
   local TEMP_SCRIPT
   TEMP_SCRIPT=$(mktemp)
 
-  # Download the new version of the script
-  # Check if the download was successful
+  log_message "Downloading the new version of the script..."
   if curl -s -L -o "$TEMP_SCRIPT" "$SCRIPT_URL"; then
     log_message "New version of the script downloaded."
-
-    # Compare the contents of the current script and the new version
-    if ! cmp -s "$0" "$TEMP_SCRIPT"; then
-      # Copy the new version over the current one
-      cp "$TEMP_SCRIPT" "$0"
-
-      # Remove the temporary file
-      rm "$TEMP_SCRIPT"
-
-      # Set execution permissions on the script
-      chmod +x "$0"
-
-      log_message "The script has been updated."
-
-      # Restart the script
-      exec $0 "$@"
-    else
-      log_message "The script is already up-to-date."
-      rm "$TEMP_SCRIPT"
-    fi
   else
-    log_error "Error downloading the new version of the script."
-    # Remove the temporary file
+    log_error "Failed to download the new version of the script. Exit"
     rm "$TEMP_SCRIPT"
+    exit 1
   fi
+
+  sed -i "s/###########/$release_number/" "$TEMP_SCRIPT"
+
+  # Copy the new version over the current one
+  cp "$TEMP_SCRIPT" "$0"
+
+  # Remove the temporary file
+  rm "$TEMP_SCRIPT"
+
+  # Set execution permissions on the script
+  chmod +x "$0"
+
+  log_message "The script has been updated."
+
+  # Restart the script
+  exec $0 "$@"
 }
