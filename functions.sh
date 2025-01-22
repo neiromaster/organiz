@@ -423,6 +423,9 @@ function update_script() {
   local release_number
   release_number=$(echo "$SCRIPT_URL" | awk -F'/' '{print $(NF-1)}')
 
+  log_message "Script version: $SCRIPT_VERSION"
+  log_message "Release number: $release_number"
+
   # Check if the download was successful
   if [ "$release_number" = "$SCRIPT_VERSION" ]; then
     log_message "The script is already up-to-date."
