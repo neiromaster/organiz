@@ -423,38 +423,37 @@ function update_script() {
   local release_number
   release_number=$(echo "$script_url" | awk -F'/' '{print $(NF-1)}')
 
-  # Check if the download was successful
-  if [ "$release_number" = "###########" ]; then
-    log_message "The script is already up-to-date."
-    return
-  fi
-
   # Create a temporary file
   local temp_script
   temp_script=$(mktemp)
 
-  log_message "Downloading the new version of the script..."
+  log_message "Downloading the latest release of the script"
   if curl -s -L -o "$temp_script" "$script_url"; then
-    log_message "New version of the script downloaded."
+    log_message "Latest release of the script downloaded."
   else
-    log_error "Failed to download the new version of the script. Exit"
+    log_error "Failed to download the release. Exit"
     rm "$temp_script"
     exit 1
   fi
 
-  # Copy the new version over the current one
-  sed "s/###########/$release_number/" "$temp_script" >"$0"
+  # Check if the files are different
+  if cmp -s "$0" "$temp_script"; then
+    log_message "The script is already up-to-date."
+  else
+    # Copy the new version over the current one
+    cp "$temp_script" "$0"
+
+    # Set execution permissions on the script
+    chmod +x "$0"
+
+    log_message "The script has been updated. Release number: $release_number"
+
+    # Restart the script
+    exec $0 "$@"
+  fi
 
   # Remove the temporary file
   rm "$temp_script"
-
-  # Set execution permissions on the script
-  chmod +x "$0"
-
-  log_message "The script has been updated. Release number: $release_number"
-
-  # Restart the script
-  exec $0 "$@"
 
   exit
 }
