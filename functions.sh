@@ -344,7 +344,7 @@ function filling {
     error_output=$(rclone mkdir "$newdir" 2>&1 >/dev/null)
     if [ $? -ne 0 ]; then
       log_error "Failed to create directory: $newdir"
-      log_error "$error_output"
+      log_rclone "$error_output"
       continue
     fi
 
@@ -365,7 +365,7 @@ function filling {
         error_output=$(rclone move "$store_path/$directory/$file" "$newdir" 2>&1 >/dev/null)
         if [ $? -ne 0 ]; then
           log_error "Failed to move file: $file from $store_path/$directory to $newdir"
-          log_error "$error_output"
+          log_rclone "$error_output"
           continue
         fi
       done
@@ -378,7 +378,7 @@ function filling {
       error_output=$(rclone rmdirs "$store_path/$directory" 2>&1 >/dev/null)
       if [ $? -ne 0 ]; then
         log_error "Failed to remove empty store folder: $store_path/$directory"
-        log_error "$error_output"
+        log_rclone "$error_output"
         continue
       fi
       log_message "Remove empty store folder: $directory"
