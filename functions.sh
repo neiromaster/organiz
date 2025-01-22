@@ -29,6 +29,10 @@ function log_error() {
   echo "$(format_date) - ERROR: $1" >>"$LOG_FILE"
 }
 
+function log_rclone() {
+  echo "$1" >>"$LOG_FILE"
+}
+
 # Function to log errors and exit
 function log_error_and_exit() {
   log_error "$1"
@@ -214,12 +218,12 @@ function aniparse() {
   error_output=$(rclone mkdir "$source_path" 2>&1 >/dev/null)
   if [ $? -ne 0 ]; then
     log_error "Failed to create source directory: $source_path"
-    log_error "$error_output"
+    log_rclone "$error_output"
   fi
   error_output=$(rclone mkdir "$store_path" 2>&1 >/dev/null)
   if [ $? -ne 0 ]; then
     log_error "Failed to create store directory: $store_path"
-    log_error "$error_output"
+    log_rclone "$error_output"
   fi
 
   # traverse all top-level files in a source folder
@@ -252,14 +256,14 @@ function aniparse() {
     error_output=$(rclone mkdir "$store_path/$dirname" 2>&1 >/dev/null)
     if [ $? -ne 0 ]; then
       log_error "Failed to create directory: $store_path/$dirname"
-      log_error "$error_output"
+      log_rclone "$error_output"
       continue
     fi
 
     error_output=$(rclone moveto "$source_path/$file" "$store_path/$dirname/$anime_season$anime_episode$anime_name.$anime_ext" 2>&1 >/dev/null)
     if [ $? -ne 0 ]; then
       log_error "Failed to move file: $file to $dirname/$anime_season$anime_episode$anime_name.$anime_ext"
-      log_error "$error_output"
+      log_rclone "$error_output"
       continue
     fi
     log_message "Move file to store: $file to $dirname/$anime_season$anime_episode$anime_name.$anime_ext"
@@ -270,10 +274,15 @@ function aniparse() {
 function sync_store_and_backup() {
   local store_path="$1"
   local backup_path="$2"
+  local error_output
 
   if [ -n "$backup_path" ]; then
     log_message "Syncing store and backup: $store_path <-> $backup_path"
-    rclone bisync "$store_path" "$backup_path"
+    error_output=$(rclone bisync "$store_path" "$backup_path")
+    if [ $? -ne 0 ]; then
+      log_error "Failed to sync store and backup: $store_path <-> $backup_path"
+      log_rclone "$error_output"
+    fi
   fi
 }
 
@@ -312,7 +321,11 @@ function filling {
 
   log_message "Second step: Move files to $destination_path"
 
-  rclone mkdir "$destination_path"
+  error_output=$(rclone mkdir "$destination_path")
+  if [ $? -ne 0 ]; then
+    log_error "Failed to create destination directory: $destination_path"
+    log_rclone "$error_output"
+  fi
 
   OLDIFS=$IFS
   directories=$(rclone lsf --dirs-only -d=false "$store_path")
