@@ -278,7 +278,7 @@ function sync_store_and_backup() {
 
   if [ -n "$backup_path" ]; then
     log_message "Syncing store and backup: $store_path <-> $backup_path"
-    error_output=$(rclone bisync "$store_path" "$backup_path" 2>&1 >/dev/null)
+    error_output=$(rclone bisync "$store_path" "$backup_path" 2>&1)
     if [ $? -ne 0 ]; then
       log_error "Failed to sync store and backup: $store_path <-> $backup_path"
       log_rclone "$error_output"
