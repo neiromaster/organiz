@@ -417,14 +417,15 @@ function get_ini_sections() {
 # Function to update the script
 function update_script() {
   # Get the download link for the latest version of the script from GitHub
-  local SCRIPT_URL
-  SCRIPT_URL=$(curl -s https://api.github.com/repos/neiromaster/organiz/releases/latest | awk -F'"' '/browser_download_url/ {print $4}')
+  local script_url
+  script_url=$(curl -s https://api.github.com/repos/neiromaster/organiz/releases/latest | awk -F'"' '/browser_download_url/ {print $4}')
 
   local release_number
-  release_number=$(echo "$SCRIPT_URL" | awk -F'/' '{print $(NF-1)}')
+  release_number=$(echo "$script_url" | awk -F'/' '{print $(NF-1)}')
 
   log_message "Script version: $SCRIPT_VERSION"
   log_message "Release number: $release_number"
+
   # Check if the download was successful
   if [ "$release_number" = "$SCRIPT_VERSION" ]; then
     log_message "The script is already up-to-date."
@@ -432,23 +433,23 @@ function update_script() {
   fi
 
   # Create a temporary file
-  local TEMP_SCRIPT
-  TEMP_SCRIPT=$(mktemp)
+  local temp_script
+  temp_script=$(mktemp)
 
   log_message "Downloading the new version of the script..."
-  if curl -s -L -o "$TEMP_SCRIPT" "$SCRIPT_URL"; then
+  if curl -s -L -o "$temp_script" "$script_url"; then
     log_message "New version of the script downloaded."
   else
     log_error "Failed to download the new version of the script. Exit"
-    rm "$TEMP_SCRIPT"
+    rm "$temp_script"
     exit 1
   fi
 
   # Copy the new version over the current one
-  sed "s/###########/$release_number/g" "$TEMP_SCRIPT" >"$0"
+  sed "s/###########/$release_number/" "$temp_script" >"$0"
 
   # Remove the temporary file
-  rm "$TEMP_SCRIPT"
+  rm "$temp_script"
 
   # Set execution permissions on the script
   chmod +x "$0"
