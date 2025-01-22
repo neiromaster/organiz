@@ -425,6 +425,7 @@ function update_script() {
 
   log_message "Script version: $SCRIPT_VERSION"
   log_message "Release number: $release_number"
+
   # Check if the download was successful
   if [ "$release_number" = "$SCRIPT_VERSION" ]; then
     log_message "The script is already up-to-date."
