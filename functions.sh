@@ -425,7 +425,6 @@ function update_script() {
 
   # Script version
   local SCRIPT_VERSION
-
   SCRIPT_VERSION="###########"
 
   log_message "Script version: $SCRIPT_VERSION"
