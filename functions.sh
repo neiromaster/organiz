@@ -278,7 +278,7 @@ function sync_store_and_backup() {
 
   if [ -n "$backup_path" ]; then
     log_message "Syncing store and backup: $store_path <-> $backup_path"
-    error_output=$(rclone bisync "$store_path" "$backup_path")
+    error_output=$(rclone bisync "$store_path" "$backup_path" 2>&1 >/dev/null)
     if [ $? -ne 0 ]; then
       log_error "Failed to sync store and backup: $store_path <-> $backup_path"
       log_rclone "$error_output"
@@ -321,7 +321,7 @@ function filling {
 
   log_message "Second step: Move files to $destination_path"
 
-  error_output=$(rclone mkdir "$destination_path")
+  error_output=$(rclone mkdir "$destination_path" 2>&1 >/dev/null)
   if [ $? -ne 0 ]; then
     log_error "Failed to create destination directory: $destination_path"
     log_rclone "$error_output"
@@ -443,7 +443,7 @@ function update_script() {
   fi
 
   # Copy the new version over the current one
-  sed "s/###########/$release_number/g" "$TEMP_SCRIPT" > "$0"
+  sed "s/###########/$release_number/g" "$TEMP_SCRIPT" >"$0"
 
   # Remove the temporary file
   rm "$TEMP_SCRIPT"
