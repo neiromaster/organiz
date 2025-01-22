@@ -442,4 +442,6 @@ function update_script() {
 
   # Restart the script
   exec $0 "$@"
+
+  exit
 }
