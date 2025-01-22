@@ -447,6 +447,7 @@ function update_script() {
 
   # Copy the new version over the current one
   sed "s/###########/$release_number/" "$temp_script" >"$0"
+  SCRIPT_VERSION="$release_number"
 
   # Remove the temporary file
   rm "$temp_script"
