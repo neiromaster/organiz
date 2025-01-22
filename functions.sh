@@ -424,6 +424,7 @@ function update_script() {
   release_number=$(echo "$script_url" | awk -F'/' '{print $(NF-1)}')
 
   # Script version
+  local SCRIPT_VERSION
   SCRIPT_VERSION="###########"
 
   log_message "Script version: $SCRIPT_VERSION"
