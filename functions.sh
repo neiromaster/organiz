@@ -438,7 +438,7 @@ function update_script() {
   # Set execution permissions on the script
   chmod +x "$0"
 
-  log_message "The script has been updated."
+  log_message "The script has been updated. Release number: $release_number"
 
   # Restart the script
   exec $0 "$@"
