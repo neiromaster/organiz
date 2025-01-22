@@ -4,7 +4,7 @@
 LOG_FILE="organiz.log"
 
 # Script version
-SCRIPT_VERSION="###########"
+export SCRIPT_VERSION="###########"
 
 source functions.sh
 
