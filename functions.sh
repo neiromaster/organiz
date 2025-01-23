@@ -448,12 +448,15 @@ function update_script() {
 
     log_message "The script has been updated. Release number: $release_number"
 
+    # Remove the temporary file
+    rm "$temp_script"
+
     # Restart the script
     exec $0 "$@"
+
+    exit
   fi
 
   # Remove the temporary file
   rm "$temp_script"
-
-  exit
 }
