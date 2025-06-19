@@ -354,7 +354,7 @@ function filling {
     if [ "$count" -lt "$max_files" ]; then
       # move no more than two files from the directory to the new folder
 
-      file_list=$(rclone lsf -R --files-only "$store_path/$directory")
+      file_list=$(rclone lsf -R --files-only --exclude '.*' "$store_path/$directory")
 
       # calculate the number of files to be migrated: the redistributed number minus the number in count
       newcount=$((max_files - count))
@@ -374,11 +374,7 @@ function filling {
     fi
 
     # delete an empty folder
-    if [ -z "$(rclone lsf --files-only "$store_path/$directory")" ]; then
-      if [ -z "$(rclone lsf --dirs-only "$store_path/$directory")" ]; then
-        log_error "Skip deleting folder as there are subfolders: $store_path/$directory"
-        continue
-      fi
+    if [ -z "$(rclone lsf --files-only -R --exclude '.*' "$store_path/$directory")" ]; then
       error_output=$(rclone rmdirs "$store_path/$directory" 2>&1 >/dev/null)
       if [ $? -ne 0 ]; then
         log_error "Failed to remove empty store folder: $store_path/$directory"
