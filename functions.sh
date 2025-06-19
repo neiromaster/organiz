@@ -348,13 +348,13 @@ function filling {
       continue
     fi
 
-    count=$(rclone size "$newdir" --json | grep -o '"count":[0-9]*' | grep -o '[0-9]*')
+    count=$(rclone lsf --files-only -R --exclude '.*' "$newdir" | wc -l)
     log_message "$count files in $newdir"
 
     if [ "$count" -lt "$max_files" ]; then
       # move no more than two files from the directory to the new folder
 
-      file_list=$(rclone lsf -R --files-only --exclude '.*' "$store_path/$directory")
+      file_list=$(rclone lsf --files-only -R --exclude '.*' "$store_path/$directory")
 
       # calculate the number of files to be migrated: the redistributed number minus the number in count
       newcount=$((max_files - count))
