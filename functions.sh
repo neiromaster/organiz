@@ -375,6 +375,10 @@ function filling {
 
     # delete an empty folder
     if [ -z "$(rclone lsf --files-only "$store_path/$directory")" ]; then
+      if [ -z "$(rclone lsf --dirs-only "$store_path/$directory")" ]; then
+        log_error "Skip deleting folder as there are subfolders: $store_path/$directory"
+        continue
+      fi
       error_output=$(rclone rmdirs "$store_path/$directory" 2>&1 >/dev/null)
       if [ $? -ne 0 ]; then
         log_error "Failed to remove empty store folder: $store_path/$directory"
