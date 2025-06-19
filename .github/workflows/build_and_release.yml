@@ -26,6 +26,7 @@ jobs:
         with:
           name: build-output
           path: build
+
   create_release:
     needs: build
     runs-on: ubuntu-latest
@@ -35,22 +36,15 @@ jobs:
         with:
           name: build-output
           path: build
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+
+      - name: Check if organiz.sh exists
+        run: test -f build/organiz.sh
+
+      - name: Create GitHub Release and Upload Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: Release v1.0.${{ github.run_number }}
+          files: build/organiz.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.run_id }}
-          release_name: Release ${{ github.run_id }}
-          draft: false
-          prerelease: false
-      - name: Upload organiz.sh to release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/organiz.sh
-          asset_name: organiz.sh
-          asset_content_type: application/octet-stream
