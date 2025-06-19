@@ -348,7 +348,7 @@ function filling {
       continue
     fi
 
-    count=$(rclone lsf --files-only -R --exclude '.*' "$newdir" | wc -l)
+    count=$(rclone lsf --files-only --exclude '.*' "$newdir" | wc -l)
     log_message "$count files in $newdir"
 
     if [ "$count" -lt "$max_files" ]; then
