@@ -354,7 +354,7 @@ function filling {
     if [ "$count" -lt "$max_files" ]; then
       # move no more than two files from the directory to the new folder
 
-      file_list=$(rclone lsf --files-only -R --exclude '.*' "$store_path/$directory")
+      file_list=$(rclone lsf --files-only -R --exclude '.*' "$store_path/$directory" | awk '{ if ($0 ~ /\//) { print "1" $0 } else { print "0" $0 } }' | sort -t' ' -k1,1 -k2 | cut -c2-)
 
       # calculate the number of files to be migrated: the redistributed number minus the number in count
       newcount=$((max_files - count))
