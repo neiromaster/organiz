@@ -3,3 +3,4 @@ config
 .vscode
 build/*
 .aider*
+.env
