@@ -190,6 +190,51 @@ function find_similar() {
   echo -n "$name"
 }
 
+# This function reads a list of file paths from stdin
+# and prints them sorted in a "natural" (files-first) order.
+function sort_files_natural() {
+  local awk_script
+  # The awk script generates a sortable key for each path.
+  # The key ensures that at any given level of the path,
+  # files (prefixed with 0) are sorted before directories (prefixed with 1).
+  awk_script=$(cat <<'AWK'
+BEGIN {
+    # Set the input field separator to /
+    FS = "/"
+    # Set the output field separator for the generated key
+    OFS = " / "
+}
+{
+    key = ""
+    # For each component in the path...
+    for (i = 1; i <= NF; i++) {
+        # ...prefix it with '1' for a directory or '0' for a file.
+        prefix = "1" # Assume directory
+        if (i == NF) {
+            prefix = "0" # It's a file if it's the last component
+        }
+
+        # Build the sort key, separating components with OFS
+        if (key == "") {
+            key = prefix $i
+        } else {
+            key = key OFS prefix $i
+        }
+    }
+    # Print the sort key, a tab, and the original path
+    print key "\t" $0
+}
+AWK
+)
+
+  local tab
+  tab=$(printf '\t')
+
+  # The pipeline to generate the key, sort by it (case-insensitively),
+  # and then cut the key away to leave only the sorted original path.
+  awk -F/ "$awk_script" | sort -t"$tab" -k1,1f | cut -d"$tab" -f2
+}
+
 function aniparse() {
   local source_path="$1"
   local store_path="$2"
@@ -354,7 +399,7 @@ function filling {
     if [ "$count" -lt "$max_files" ]; then
       # move no more than two files from the directory to the new folder
 
-      file_list=$(rclone lsf --files-only -R --exclude '.*' "$store_path/$directory")
+      file_list=$(rclone lsf --files-only -R --exclude '.*' "$store_path/$directory" | sort_files_natural)
 
       # calculate the number of files to be migrated: the redistributed number minus the number in count
       newcount=$((max_files - count))
