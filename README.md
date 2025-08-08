@@ -1,5 +1,7 @@
 # Bash File Organizer
 
+[Русская версия](docs/README_RU.md)
+
 This Bash script organizes files by moving them from a source directory to a destination directory based on specified criteria. It uses a configuration file to manage different tasks and also controls the total size of the destination directory.
 
 ## Usage
